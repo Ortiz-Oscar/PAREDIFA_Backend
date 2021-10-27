@@ -5,7 +5,7 @@ const {saveAutomata} = require('./config/automataCRUD');
 const app = express();
 const port = 3001;
 
-app.get('/' , (req,res)=>{
+app.get('/' , (_,res)=>{
     res.send(`<h1>Server running on port ${port}</h1>`);
 });
 app.use('/gql', graphqlHTTP({ schema:automataSchema ,graphiql:true}));

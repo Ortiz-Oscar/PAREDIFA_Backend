@@ -45,7 +45,7 @@ async function saveAutomata(id, alphabet, states, transitions){
         return driver.session().run(`match(a:Automata) , (s:State) where a.id = '${id}' and s.id = '${s.id}' create(a)-[:states]->(s);`,{});
     }))
     await Promise.all(transitions.map(t => {
-        return driver.session().run(`create(:Transition{ id:'${t.id}', state_src_id:'${t.state_src_id}', state_dst_id:'${t.state_dst_id}', symbols:[${t.symbols}]});`);
+        return driver.session().run(`create(:Transition{ id:'${t.id}', state_src_id:'${t.state_src_id}', state_dst_id:'${t.state_dst_id}', symbols:[${t.symbols.map(s => json.stringify(s))}]});`);
     }))
     await Promise.all(transitions.map(t => {
         return driver.session().run(`match(a:Automata) , (tr:Transition) where a.id = '${id}' and tr.id = '${t.id}' create(a)-[:transitions]->(tr);`);
