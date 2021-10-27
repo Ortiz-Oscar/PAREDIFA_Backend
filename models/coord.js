@@ -7,14 +7,7 @@ const coordType = new GraphQLObjectType({
         y:{type:GraphQLInt}
     })
 })
-const inputCoordType = new GraphQLInputObjectType({
-    name:'Coord_input',
-    fields:()=>({
-        x:{type:GraphQLInt},
-        y:{type:GraphQLInt}
-    })
-})
 
 module.exports = {
-    coordType , inputCoordType
+    coordType
 }

@@ -32,6 +32,7 @@ async function listAllAutomatas(){
 
 async function saveAutomata(id, alphabet, states, transitions){
     //Crea el automata y su relación con el repositorio
+    //La vara es que debe respetar el orden sino la palma
     console.log(alphabet)
     await driver.session().run(`create(:Automata{ id : '${id}' , name:'Aut'});`);
     await driver.session().run(`match(r:Repository) , (a:Automata) where r.name = 'Repo' and a.id = '${id}' create(r)-[:contains]-> (a);`)

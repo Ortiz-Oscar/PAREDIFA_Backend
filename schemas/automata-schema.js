@@ -1,9 +1,8 @@
 const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLNonNull, GraphQLInt } = require('graphql');
 const {automataType} = require('../models/automata')
 let { getAutomata, listAllAutomatas, saveAutomata } = require('../config/automataCRUD');
-const { json } = require('neo4j-driver-core');
-const { stateType, inputStateType } = require('../models/state');
-const { inputTransitionType } = require('../models/transition');
+const { inputStateType } = require('../models/inputs/stateInput')
+const { inputTransitionType } = require('../models/inputs/transitionInput');
 const automataQuery = new GraphQLObjectType({
     name:'Automata_query',
     fields:()=>({

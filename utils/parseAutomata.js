@@ -1,0 +1,1 @@
+//En el futuro tendrá los metodos de conversión de automatas de entrada y salida
