@@ -1,6 +1,6 @@
 const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLNonNull, GraphQLInt, GraphQLBoolean } = require('graphql');
 const {automataType} = require('../models/automata');
-const image = require('../models/image');
+const nodemailer = require("nodemailer");
 const { getAutomata, listAllAutomatas, saveAutomata } = require('../config/automataCRUD');
 const { inputStateType } = require('../models/inputs/stateInput')
 const { inputTransitionType } = require('../models/inputs/transitionInput');
@@ -24,12 +24,39 @@ const automataQuery = new GraphQLObjectType({
         },
         sendAutomata:{
             type:GraphQLString,
-            description:'Sends an email with an image of the automata to an email direction',
+            description:'Sends an email with an image of the automata in base64 to an email direction',
             args:{
                 mailAddres:{type:GraphQLString},
-                img:{type:image}
+                imageData:{type:GraphQLString}
             },
-            resolve:()=>"Jajjsjajajaja hay que arreglar esta wea"
+            resolve: async(_, args) => {
+                let transporter = nodemailer.createTransport({
+                    service: "gmail",
+                    host: "smtp.gmail.com",
+                    port: 587,
+                    secure: false, // true for 465, false for other ports
+                    auth: {
+                      user: "eif400paredifag01@gmail.com", // generated ethereal user
+                      pass: "zvpanjdszgbntcfi", // generated ethereal password
+                    },
+                  });
+                
+                  // send mail with defined transport object
+                  let info = await transporter.sendMail({
+                    from: 'eif400paredifag01@gmail.com', // sender address
+                    to: args.mailAddres, // reciever
+                    subject: "Your automata made in PAREDIFA", // Subject line
+                    html: `<p>Your automata made in our application</p>`, // html body
+                    attachments:[
+                      {
+                          filename: "Automata.png",
+                          path: args.imageData
+                      }
+                    ]
+                  });
+                  transporter.close();
+                  return info.messageId
+            }
         }
 
     })
