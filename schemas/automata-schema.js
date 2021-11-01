@@ -1,6 +1,7 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLNonNull, GraphQLInt } = require('graphql');
-const {automataType} = require('../models/automata')
-let { getAutomata, listAllAutomatas, saveAutomata } = require('../config/automataCRUD');
+const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLNonNull, GraphQLInt, GraphQLBoolean } = require('graphql');
+const {automataType} = require('../models/automata');
+const image = require('../models/image');
+const { getAutomata, listAllAutomatas, saveAutomata } = require('../config/automataCRUD');
 const { inputStateType } = require('../models/inputs/stateInput')
 const { inputTransitionType } = require('../models/inputs/transitionInput');
 const automataQuery = new GraphQLObjectType({
@@ -20,7 +21,17 @@ const automataQuery = new GraphQLObjectType({
             type:GraphQLList(automataType),
             description:'Returns a list of all automatas saved',
             resolve: ()=> listAllAutomatas(),
+        },
+        sendAutomata:{
+            type:GraphQLString,
+            description:'Sends an email with an image of the automata to an email direction',
+            args:{
+                mailAddres:{type:GraphQLString},
+                img:{type:image}
+            },
+            resolve:()=>"Jajjsjajajaja hay que arreglar esta wea"
         }
+
     })
 });
 const automataMutation = new GraphQLObjectType({
