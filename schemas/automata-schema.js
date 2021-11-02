@@ -27,7 +27,10 @@ const automataQuery = new GraphQLObjectType({
             description:'Sends an email with an image of the automata in base64 to an email direction',
             args:{
                 mailAddres:{type:GraphQLString},
-                imageData:{type:GraphQLString}
+                binaryInfo: { type: GraphQLString },
+                studentName: { type: GraphQLString },
+                studentId: { type: GraphQLString },
+                studentSchedule: { type: GraphQLString },
             },
             resolve: async(_, args) => {
                 let transporter = nodemailer.createTransport({
@@ -42,15 +45,27 @@ const automataQuery = new GraphQLObjectType({
                   });
                 
                   // send mail with defined transport object
+                  const COURSE = {
+                    code: "400",
+                    subject: "HOMEWORK",
+                    year: "2020",
+                    cycle: "||",
+                  };
+                  const DESCRIPTION = `EIF${COURSE.code}_${COURSE.subject}_${COURSE.cycle}_${COURSE.year}_${args.studentName}_${args.studentId}_${args.studentSchedule}`;
                   let info = await transporter.sendMail({
                     from: 'eif400paredifag01@gmail.com', // sender address
                     to: args.mailAddres, // reciever
-                    subject: "Your automata made in PAREDIFA", // Subject line
-                    html: `<p>Your automata made in our application</p>`, // html body
+                    subject: DESCRIPTION, // Subject line
+                    html: `<h3>Greetings, ${args.studentName}</h3><br></br>
+                    <p>Hope you're doing well, this email is to inform you that you have recieved an automata  \u{270D}\u{1F4DA}</p><br></br>
+                    <br></br>
+                    <p>Regards, </p><br></br>
+                    <strong>PAREDIFA 01-10 Team</strong>
+                    `,
                     attachments:[
                       {
-                          filename: "Automata.png",
-                          path: args.imageData
+                          filename: `${DESCRIPTION}.png`,
+                          path: args.binaryInfo
                       }
                     ]
                   });
