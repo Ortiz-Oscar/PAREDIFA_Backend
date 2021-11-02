@@ -1,7 +1,10 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLNonNull, GraphQLInt, GraphQLBoolean } = require('graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString } = require('graphql');
 const {automataType} = require('../models/automata');
+const { aboutType } = require('../models/about')
 const { sendImage } = require('../utils/sendImage')
-const { getAutomata, listAllAutomatas, saveAutomata } = require('../config/automataCRUD');
+const { getAutomata, listAllAutomatas, saveAutomata } = require('../config/automataService');
+const { aboutService } = require('../config/aboutService');
+
 const { inputStateType } = require('../models/inputs/stateInput')
 const { inputTransitionType } = require('../models/inputs/transitionInput');
 const automataQuery = new GraphQLObjectType({
@@ -33,6 +36,11 @@ const automataQuery = new GraphQLObjectType({
                 studentSchedule: { type: GraphQLString },
             },
             resolve: (_, args) => sendImage(args)
+        },
+        about:{
+            type:aboutType,
+            description:'General information about the project',
+            resolve: () => aboutService()
         }
     })
 })

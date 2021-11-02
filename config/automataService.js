@@ -8,7 +8,7 @@ async function getAutomata(id){
     let transitionResult = await session.run(`match (:Automata{id:"${id}"})-[:transitions]->(t:Transition) return t`);
     session.close()
     return {
-        id:id,
+        id,
         alphabet:alphabetResult.records[0].get('a').properties.symbols,
         states: stateResult.records.map(s => {
             let state = s.get('s').properties;

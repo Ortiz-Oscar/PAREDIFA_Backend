@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLInt, GraphQLInputObjectType} = require('graphql');
+const { GraphQLObjectType, GraphQLInt} = require('graphql');
 const coordType = new GraphQLObjectType({
     name:'Coord',
     description:'Cordinates of the state',

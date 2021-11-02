@@ -1,0 +1,54 @@
+create(:Authors{name:'Autors'});
+
+create(:Author{
+   id: "117520958",
+   name: "Andres Alvarez Duran"
+});
+create(:Author{
+   id: "117440348",
+   name: "Joaquin Barrientos Monge"
+});
+create(:Author{
+   id: "208260347",
+   name: "Oscar Ortiz Chavarria"
+});
+create(:Author{
+   id: "116770797",
+   name: "David Zarate Marin"
+});
+
+create(:Team{
+   id: "01-10am"
+});
+
+create(:Course{
+  id: "EIF400",
+  crn: "50038",
+  name: "Paradigmas de Programacion",
+  professor: "Dr. Carlos Loria-Saenz",
+  college: "Universidad Nacional de Costa Rica"
+});
+
+create(:Term{
+  year: "2021",
+  id: "II"
+});
+
+create(:Version{
+  id: "2.0"
+});
+
+match(A:Authors), (a:Author) create(A)-[:author]->(a);
+match(A:Authors), (t:Team) create(A)-[:team]->(t);
+match(A:Authors), (c:Course) create(A)-[:course]->(c);
+match(A:Authors), (te:Term) create(A)-[:term]->(te);
+match(A:Authors), (v:Version) create(A)-[:version]->(v);
+
+
+
+match(:Authors)-[:author]->(A:Author) return A as author;
+match(:Authors)-[:course]->(C:Course) return C as course;
+match(:Authors)-[:team]->(t:Team) return t as team;
+match(:Authors)-[:version]->(v:Version) return v as version;
+match(:Authors)-[:term]->(t:Term) return t as term;
+
