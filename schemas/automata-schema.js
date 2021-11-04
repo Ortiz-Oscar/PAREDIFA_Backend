@@ -53,11 +53,12 @@ const automataMutation = new GraphQLObjectType({
             description:'Save a new automata to database',
             args:{
                 id : { type:GraphQLString },
+                name : { type:GraphQLString },
                 alphabet : { type:GraphQLList(GraphQLString) },
                 states: { type:GraphQLList(inputStateType) },
                 transitions: {type:GraphQLList(inputTransitionType)}
             },
-            resolve:( _ , args ) => saveAutomata(args.id, args.alphabet, args.states, args.transitions),
+            resolve:( _ , args ) => saveAutomata(args.id, args.name, args.alphabet, args.states, args.transitions),
         }
     })
 });

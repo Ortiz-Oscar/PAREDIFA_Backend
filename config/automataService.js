@@ -3,12 +3,14 @@ const {driver} = require('./db')
 
 async function getAutomata(id){
     let session = driver.session();
+    let automataResult = await session.run(`match(a:Automata{id:"${id}"}) return a.name as name`);
     let stateResult = await session.run(`match (:Automata{id:"${id}"})-[:states]->(s:State) return s`);
     let alphabetResult = await session.run(`match (:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) return a`);
     let transitionResult = await session.run(`match (:Automata{id:"${id}"})-[:transitions]->(t:Transition) return t`);
     session.close()
     return {
         id,
+        name: automataResult.records[0].get('name'),
         alphabet:alphabetResult.records[0].get('a').properties.symbols,
         states: stateResult.records.map(s => {
             let state = s.get('s').properties;
@@ -26,11 +28,11 @@ async function listAllAutomatas(){
     return Promise.all(idList.records.map(id => getAutomata(id.get('id'))))
 }
 
-async function saveAutomata(id, alphabet, states, transitions){
+async function saveAutomata(id, name, alphabet, states, transitions){
     //Crea el automata y su relación con el repositorio
     //La vara es que debe respetar el orden sino la palma
     try{
-        await driver.session().run(`create(:Automata{ id : '${id}' , name:'Aut'});`);
+        await driver.session().run(`create(:Automata{ id : '${id}' , name:'${name}'});`);
         await driver.session().run(`match(r:Repository) , (a:Automata) where r.name = 'Repo' and a.id = '${id}' create(r)-[:contains]-> (a);`)
         await driver.session().run(`create(:Alphabet{id: 'Alp${id}', symbols:[${alphabet.map(a => json.stringify(a))}]});`);
         await driver.session().run(`match(a:Automata) , (alp:Alphabet) where a.id = '${id}' and alp.id = 'Alp${id}' create(a)-[:alphabet]->(alp);`)
