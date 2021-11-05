@@ -1,9 +1,9 @@
-const { GraphQLInt, GraphQLInputObjectType} = require('graphql');
+const { GraphQLInputObjectType, GraphQLFloat} = require('graphql');
 const inputCoordType = new GraphQLInputObjectType({
     name:'Coord_input',
     fields:()=>({
-        x:{type:GraphQLInt},
-        y:{type:GraphQLInt}
+        x:{type:GraphQLFloat},
+        y:{type:GraphQLFloat}
     })
 })
 

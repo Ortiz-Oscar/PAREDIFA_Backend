@@ -20,11 +20,11 @@ create(:State{id:'1635026209193', name:'S2' , coord:['662','330'], radius:'20',e
 
 create(:Alphabet{id: 'Alp0' ,name:'Alp0', symbols:['0','1']});
 
-create(:Transition{ id:'1635026217885' , name:'T0', state_src_id:'1635026207553', state_dst_id:'1635026207553', symbols:['0']});
-create(:Transition{ id:'1635026221915' , name:'T1', state_src_id:'1635026207553', state_dst_id:'1635026207935', symbols:['1']});
-create(:Transition{ id:'1635026225366' , name:'T2', state_src_id:'1635026207935', state_dst_id:'1635026207935', symbols:['1']});
-create(:Transition{ id:'1635026229271' , name:'T3', state_src_id:'1635026207935', state_dst_id:'1635026209193', symbols:['0']});
-create(:Transition{ id:'1635026251272' , name:'T4', state_src_id:'1635026209193', state_dst_id:'1635026209193', symbols:['0','1']});
+create(:Transition{ id:'1635026217885' , name:'T0', state_src_id:'1635026207553', src_coord:point({x: 50, y: 50}), state_dst_id:'1635026207553', dst_coord:point({x: 50, y: 50}), symbols:['0']});
+create(:Transition{ id:'1635026221915' , name:'T1', state_src_id:'1635026207553', src_coord:point({x: 50, y: 50}), state_dst_id:'1635026207935', dst_coord:point({x: 50, y: 50}), symbols:['1']});
+create(:Transition{ id:'1635026225366' , name:'T2', state_src_id:'1635026207935', src_coord:point({x: 50, y: 50}), state_dst_id:'1635026207935', dst_coord:point({x: 50, y: 50}), symbols:['1']});
+create(:Transition{ id:'1635026229271' , name:'T3', state_src_id:'1635026207935', src_coord:point({x: 50, y: 50}), state_dst_id:'1635026209193', dst_coord:point({x: 50, y: 50}), symbols:['0']});
+create(:Transition{ id:'1635026251272' , name:'T4', state_src_id:'1635026209193', src_coord:point({x: 50, y: 50}), state_dst_id:'1635026209193', dst_coord:point({x: 50, y: 50}), symbols:['0','1']});
 
 match(r:Repository) , (a:Automata) where r.name = 'Repo' and a.id = '0' create(r)-[:contains]-> (a);
 match(a:Automata) , (s:State) where a.id = '0' and s.name = 'S0' create(a)-[:states]->(s);

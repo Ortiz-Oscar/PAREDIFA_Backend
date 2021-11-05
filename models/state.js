@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLBoolean } = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLBoolean } = require('graphql');
 const {coordType} = require('./coord');
 const stateType = new GraphQLObjectType({
     name:'State',
@@ -7,7 +7,6 @@ const stateType = new GraphQLObjectType({
         id:{ type:GraphQLString },
         name:{ type:GraphQLString },
         coord:{ type: coordType},
-        radius: {type: GraphQLInt},
         end:{type: GraphQLBoolean},
         start:{type:GraphQLBoolean}
     })

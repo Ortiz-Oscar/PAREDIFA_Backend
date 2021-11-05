@@ -1,10 +1,10 @@
-const { GraphQLObjectType, GraphQLInt} = require('graphql');
+const { GraphQLObjectType, GraphQLFloat} = require('graphql');
 const coordType = new GraphQLObjectType({
     name:'Coord',
     description:'Cordinates of the state',
     fields:()=>({
-        x:{type:GraphQLInt},
-        y:{type:GraphQLInt}
+        x:{type:GraphQLFloat},
+        y:{type:GraphQLFloat}
     })
 })
 
