@@ -60,4 +60,20 @@ async function saveAutomata(id, name, alphabet, states, transitions){
         return "An error has ocurred while saving the automata";
     }
 }
-module.exports = { getAutomata, listAllAutomatas, saveAutomata };
+
+async function deleteAutomata(id){
+    let querys = [
+        `match(:Automata{id:"${id}"})-[:states]->(s:State) detach delete s;`,
+        `match(:Automata{id:"${id}"})-[:transitions]->(t:Transition) detach delete t;`,
+        `match(:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) detach delete a;`
+    ];
+    try{
+        await Promise.all(querys.map(query => driver.session().run(query)));
+        await driver.session().run(`match(a:Automata{id:"${id}"}) detach delete a;`)
+        return true;
+    }catch(e){
+        return e;
+    }
+
+}
+module.exports = { getAutomata, listAllAutomatas, saveAutomata, deleteAutomata };

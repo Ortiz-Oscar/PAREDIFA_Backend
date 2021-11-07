@@ -1,8 +1,8 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString } = require('graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLBoolean } = require('graphql');
 const {automataType} = require('../models/automata');
 const { aboutType } = require('../models/about')
 const { sendImage } = require('../utils/sendImage')
-const { getAutomata, listAllAutomatas, saveAutomata } = require('../config/automataService');
+const { getAutomata, listAllAutomatas, saveAutomata, deleteAutomata } = require('../config/automataService');
 const { aboutService } = require('../config/aboutService');
 
 const { inputStateType } = require('../models/inputs/stateInput')
@@ -46,11 +46,11 @@ const automataQuery = new GraphQLObjectType({
 })
 const automataMutation = new GraphQLObjectType({
     name:'Automata_mutation',
-    description:'Write a new automata on database',
+    description:'Mutate automatas on database',
     fields:()=>({
         saveAutomata : {
             type : automataType,
-            description:'Save a new automata to database',
+            description:'Store a new automata on database',
             args:{
                 id : { type:GraphQLString },
                 name : { type:GraphQLString },
@@ -59,6 +59,14 @@ const automataMutation = new GraphQLObjectType({
                 transitions: {type:GraphQLList(inputTransitionType)}
             },
             resolve:( _ , args ) => saveAutomata(args.id, args.name, args.alphabet, args.states, args.transitions),
+        },
+        deleteAutomata :{
+            type : GraphQLBoolean,
+            description:'Delete an automata stored on db',
+            args:{
+                id: {type: GraphQLString}
+            },
+            resolve:(_, args) => deleteAutomata(args.id)
         }
     })
 });
