@@ -1,5 +1,5 @@
 const { GraphQLString, GraphQLBoolean, GraphQLInputObjectType } = require('graphql');
-const { inputCoordType } = require('./coordInput')
+const { inputCoordType } = require('./coord_input')
 const inputStateType = new GraphQLInputObjectType({
     name:'Input_state',
     fields:()=>({

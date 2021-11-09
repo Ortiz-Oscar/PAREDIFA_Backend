@@ -1,6 +1,6 @@
 const { GraphQLString, GraphQLList, GraphQLInputObjectType } = require('graphql');
-const { transitionStateInputType } = require('./transitionStateInput')
-const { inputCoordType } = require('./coordInput')
+const { transitionStateInputType } = require('./transitionstate_input')
+const { inputCoordType } = require('./coord_input')
 const inputTransitionType = new GraphQLInputObjectType({
     name:'Transition_input',
     fields:()=>({

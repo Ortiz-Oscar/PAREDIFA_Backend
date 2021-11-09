@@ -1,5 +1,5 @@
 const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
-const { transitionStateType } = require('./transitionState');
+const { transitionStateType } = require('./transitionstate');
 const { coordType } = require('./coord')
 const transitionType = new GraphQLObjectType({
     name:'Transition',
