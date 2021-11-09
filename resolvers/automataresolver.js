@@ -2,8 +2,9 @@ const { json } = require("neo4j-driver-core");
 const { driver } = require("../db/db");
 
 /**
+ * Retrieves a single automata based on id
  * @param {*} id
- * @returns A single automata based on id
+ * @returns a single automata
  */
 async function getAutomata(id) {
   let session = driver.session();
@@ -47,8 +48,8 @@ async function getAutomata(id) {
 }
 
 /**
- *
- * @returns a list of all automatas saved on db
+ * List all the automatas stored on database
+ * @returns a list of automatas
  */
 async function listAllAutomatas() {
   let session = driver.session();
@@ -57,6 +58,15 @@ async function listAllAutomatas() {
   return Promise.all(idList.records.map((id) => getAutomata(id.get("id"))));
 }
 
+/**
+ * Save a new automata on database
+ * @param {*} id ID of automata to save
+ * @param {*} name Name of automata to save
+ * @param {*} alphabet List of symbols that represents the alphabet of the automata
+ * @param {*} states List of states of the automata
+ * @param {*} transitions List of transitions of the automata
+ * @returns the automata saved on db
+ */
 async function saveAutomata(id, name, alphabet, states, transitions) {
   try {
     await driver
@@ -139,26 +149,45 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
   }
 }
 
+/**
+ * Deletes an automata stored on db
+ * @param {*} id
+ * @returns a boolean value true if successful or false otherwise
+ */
 async function deleteAutomata(id) {
-  let querys = [
-    `match(:Automata{id:"${id}"})-[:states]->(s:State) detach delete s;`,
-    `match(:Automata{id:"${id}"})-[:transitions]->(t:Transition) detach delete t;`,
-    `match(:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) detach delete a;`,
-  ];
   try {
+    let querys = [
+      `match(:Automata{id:"${id}"})-[:states]->(s:State) detach delete s;`,
+      `match(:Automata{id:"${id}"})-[:transitions]->(t:Transition) detach delete t;`,
+      `match(:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) detach delete a;`,
+    ];
     await Promise.all(querys.map((query) => driver.session().run(query)));
     await driver
       .session()
       .run(`match(a:Automata{id:"${id}"}) detach delete a;`);
     return true;
   } catch (e) {
-    return e;
+    return false;
   }
 }
+
+/**
+ * Replace an automata stored on db with a new one with diferent values
+ * @param {*} id ID of automata of replace
+ * @param {*} name new name of the automata
+ * @param {*} alphabet new alphabet of the automata
+ * @param {*} states new list of states
+ * @param {*} transitions new list of transitions
+ * @returns true if successful or false otherwise
+ */
 async function replaceAutomata(id, name, alphabet, states, transitions) {
-  await deleteAutomata(id);
-  await saveAutomata(id, name, alphabet, states, transitions);
-  return true;
+  try {
+    await deleteAutomata(id);
+    await saveAutomata(id, name, alphabet, states, transitions);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 module.exports = {
   getAutomata,
