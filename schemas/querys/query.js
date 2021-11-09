@@ -6,7 +6,9 @@ const {
   listAllAutomatas,
 } = require("../../resolvers/automataresolver.js");
 const { aboutResolver } = require("../../resolvers/aboutresolver.js");
+
 const { GraphQLObjectType, GraphQLList, GraphQLString } = require("graphql");
+
 const query = new GraphQLObjectType({
   name: "Query",
   description: "Handle read operations of data stored on database",

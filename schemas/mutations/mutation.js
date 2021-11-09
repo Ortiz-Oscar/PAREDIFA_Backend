@@ -4,6 +4,11 @@ const {
   GraphQLString,
   GraphQLBoolean,
 } = require("graphql");
+const {
+  deleteAutomata,
+  saveAutomata,
+  replaceAutomata,
+} = require("../../resolvers/automataresolver.js");
 const { automataType } = require("../types/automata.js");
 const { inputStateType } = require("../types/state_input.js");
 const { inputTransitionType } = require("../types/transition_input.js");

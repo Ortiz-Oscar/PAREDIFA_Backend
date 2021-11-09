@@ -25,11 +25,7 @@ async function getAutomata(id) {
     id,
     name: automataResult.records[0].get("name"),
     alphabet: alphabetResult.records[0].get("a").properties.symbols,
-    states: stateResult.records.map((s) => {
-      let state = s.get("s").properties;
-      state.coord = { x: state.coord[0], y: state.coord[1] };
-      return state;
-    }),
+    states: stateResult.records.map((s) => s.get("s").properties),
     transitions: transitionResult.records.map((t) => {
       let transition = t.get("t").properties;
       transition.state_src_id = {
@@ -94,8 +90,7 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
         driver
           .session()
           .run(
-            `create(:State{ id:'${s.id}', name:'${s.name}' , coord:['${s.coord.x}','${s.coord.y}'] ,end:${s.end}, start:${s.start}})`,
-            {}
+            `create(:State{ id:'${s.id}', name:'${s.name}' , coord:point({x: ${s.coord.x}, y: ${s.coord.y}}) ,end:${s.end}, start:${s.start}})`
           )
       )
     );
@@ -104,8 +99,7 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
         driver
           .session()
           .run(
-            `match(a:Automata) , (s:State) where a.id = '${id}' and s.id = '${s.id}' create(a)-[:states]->(s);`,
-            {}
+            `match(a:Automata) , (s:State) where a.id = '${id}' and s.id = '${s.id}' create(a)-[:states]->(s);`
           )
       )
     );
@@ -156,7 +150,7 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
  */
 async function deleteAutomata(id) {
   try {
-    let querys = [
+    const querys = [
       `match(:Automata{id:"${id}"})-[:states]->(s:State) detach delete s;`,
       `match(:Automata{id:"${id}"})-[:transitions]->(t:Transition) detach delete t;`,
       `match(:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) detach delete a;`,
