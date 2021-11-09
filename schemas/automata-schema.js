@@ -2,7 +2,7 @@ const { GraphQLSchema, GraphQLObjectType, GraphQLList, GraphQLString, GraphQLBoo
 const {automataType} = require('../models/automata');
 const { aboutType } = require('../models/about')
 const { sendImage } = require('../utils/sendImage')
-const { getAutomata, listAllAutomatas, saveAutomata, deleteAutomata } = require('../config/automataService');
+const { getAutomata, listAllAutomatas, saveAutomata, deleteAutomata, replaceAutomata } = require('../config/automataService');
 const { aboutService } = require('../config/aboutService');
 
 const { inputStateType } = require('../models/inputs/stateInput')
@@ -67,6 +67,18 @@ const automataMutation = new GraphQLObjectType({
                 id: {type: GraphQLString}
             },
             resolve:(_, args) => deleteAutomata(args.id)
+        },
+        replaceAutomata:{
+            type : GraphQLBoolean,
+            description:'Replace an automata stored on database',
+            args:{
+                id : { type:GraphQLString },
+                name : { type:GraphQLString },
+                alphabet : { type:GraphQLList(GraphQLString) },
+                states: { type:GraphQLList(inputStateType) },
+                transitions: {type:GraphQLList(inputTransitionType)}
+            },
+            resolve : (_, args) => replaceAutomata(args.id, args.name, args.alphabet, args.states, args.transitions)
         }
     })
 });

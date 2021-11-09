@@ -74,6 +74,10 @@ async function deleteAutomata(id){
     }catch(e){
         return e;
     }
-
 }
-module.exports = { getAutomata, listAllAutomatas, saveAutomata, deleteAutomata };
+async function replaceAutomata(id, name, alphabet, states, transitions){
+    await deleteAutomata(id);
+    await saveAutomata(id, name, alphabet, states, transitions);
+    return true;
+}
+module.exports = { getAutomata, listAllAutomatas, saveAutomata, deleteAutomata, replaceAutomata};
