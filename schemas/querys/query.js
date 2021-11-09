@@ -1,5 +1,7 @@
 const { aboutType } = require("../types/about.js");
 const { automataType } = require("../types/automata.js");
+const { regularExpresionType } = require("../types/regularexpresion_input.js");
+
 const { sendImage } = require("../../utils/sendImage.js");
 const {
   getAutomata,
@@ -11,7 +13,7 @@ const { GraphQLObjectType, GraphQLList, GraphQLString } = require("graphql");
 
 const query = new GraphQLObjectType({
   name: "Query",
-  description: "Handle read operations of data stored on database",
+  description: "Handle",
   fields: () => ({
     singleAutomata: {
       type: automataType,
@@ -40,6 +42,13 @@ const query = new GraphQLObjectType({
         studentSchedule: { type: GraphQLString },
       },
       resolve: (_, args) => sendImage(args),
+    },
+    compileRE: {
+      type: automataType,
+      description: "Compiles REs into DFA",
+      args: {
+        re: { type: regularExpresionType },
+      },
     },
     about: {
       type: aboutType,
