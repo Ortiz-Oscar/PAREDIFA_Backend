@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLList } = require("graphql");
+const { GraphQLObjectType, GraphQLList, GraphQLString } = require("graphql");
 const { reStateType } = require("./restate.js");
 const { reTransitionType } = require("./retransition.js");
 const reAutomataType = new GraphQLObjectType({
@@ -12,6 +12,10 @@ const reAutomataType = new GraphQLObjectType({
     edges: {
       type: GraphQLList(reTransitionType),
       description: "List of transitions of automata",
+    },
+    alphabet: {
+      type: GraphQLList(GraphQLString),
+      description: "List of symbols of automata",
     },
   }),
 });

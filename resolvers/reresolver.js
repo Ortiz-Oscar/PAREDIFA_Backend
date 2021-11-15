@@ -18,6 +18,7 @@ async function compileRE(re) {
       target: parseInt(move[8]),
       symbol: move[3],
     })),
+    alphabet: finiteAutomata.vocabulary,
   };
 }
 module.exports = {
