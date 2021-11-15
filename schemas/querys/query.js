@@ -1,13 +1,14 @@
 const { aboutType } = require("../types/about.js");
 const { automataType } = require("../types/automata.js");
 const { regularExpresionType } = require("../types/regularexpresion_input.js");
-
+const { reAutomataType } = require("../types/reautomata.js");
 const { sendImage } = require("../../utils/sendImage.js");
 const {
   getAutomata,
   listAllAutomatas,
 } = require("../../resolvers/automataresolver.js");
 const { aboutResolver } = require("../../resolvers/aboutresolver.js");
+const { compileRE } = require("../../resolvers/reresolver");
 
 const { GraphQLObjectType, GraphQLList, GraphQLString } = require("graphql");
 
@@ -44,11 +45,12 @@ const query = new GraphQLObjectType({
       resolve: (_, args) => sendImage(args),
     },
     compileRE: {
-      type: automataType,
-      description: "Compiles REs into DFA",
+      type: reAutomataType,
+      description: "Compiles RE into a DFA",
       args: {
         re: { type: regularExpresionType },
       },
+      resolve: (_, args) => compileRE(args.re.RE),
     },
     about: {
       type: aboutType,
