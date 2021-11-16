@@ -1,10 +1,16 @@
-const {
-  GraphQLInputObjectType,
-  GraphQLString,
-  GraphQLNonNull,
-  GraphQLBoolean,
-} = require("graphql");
+const { GraphQLInputObjectType, GraphQLString, GraphQLNonNull, GraphQLBoolean,} = require("graphql");
 
+/*
+ * Description:
+ * Custom regex graphQL input type for query parameters
+ * EIF400 -- Paradigmas de Programacion
+ * @since II Term - 2021
+ * @authors Team 01-10am
+ *  - Andres Alvarez Duran 117520958 
+ *  - Joaquin Barrientos Monge 117440348
+ *  - Oscar Ortiz Chavarria 208260347
+ *  - David Zarate Marin 116770797
+ */
 const regularExpresionType = new GraphQLInputObjectType({
   name: "Regular_Expresion",
   description: "Input object to process a regular expressions send by client",

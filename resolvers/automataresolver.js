@@ -1,50 +1,66 @@
 const { json } = require("neo4j-driver-core");
-const { driver } = require("../db/db");
+const { driver } = require("../db/db.js");
+/*
+ *
+ * Description:
+ * Handle automata querys on database
+ * EIF400 -- Paradigmas de Programacion
+ * @since II Term - 2021
+ * @authors Team 01-10am
+ *  - Andres Alvarez Duran 117520958 
+ *  - Joaquin Barrientos Monge 117440348
+ *  - Oscar Ortiz Chavarria 208260347
+ *  - David Zarate Marin 116770797
+ */
 
 /**
  * Retrieves a single automata based on id
- * @param {*} id
+ * @param {*} id ID of requested automata
  * @returns a single automata
  */
 async function getAutomata(id) {
-  let session = driver.session();
-  let automataResult = await session.run(
-    `match(a:Automata{id:"${id}"}) return a.name as name`
-  );
-  let stateResult = await session.run(
-    `match (:Automata{id:"${id}"})-[:states]->(s:State) return s`
-  );
-  let alphabetResult = await session.run(
-    `match (:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) return a`
-  );
-  let transitionResult = await session.run(
-    `match (:Automata{id:"${id}"})-[:transitions]->(t:Transition) return t`
-  );
-  session.close();
-  return {
-    id,
-    name: automataResult.records[0].get("name"),
-    alphabet: alphabetResult.records[0].get("a").properties.symbols,
-    states: stateResult.records.map((s) => s.get("s").properties),
-    transitions: transitionResult.records.map((t) => {
-      let transition = t.get("t").properties;
-      transition.state_src_id = {
-        id: transition.state_src_id,
-        x: transition.src_coord.x,
-        y: transition.src_coord.y,
-      };
-      transition.state_dst_id = {
-        id: transition.state_dst_id,
-        x: transition.dst_coord.x,
-        y: transition.dst_coord.y,
-      };
-      return transition;
-    }),
-  };
+  try{
+    let session = driver.session();
+    let querys = [
+      //Returns automata name
+      await session.run(`match(a:Automata{id:"${id}"}) return a.name as name`),
+      //Returns the alphabet
+      await session.run(`match (:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) return a`),
+      //Returns the list of states
+      await session.run(`match (:Automata{id:"${id}"})-[:states]->(s:State) return s`),
+      //Returns the list of transitions
+      await session.run(`match (:Automata{id:"${id}"})-[:transitions]->(t:Transition) return t`),
+    ]
+    let resultSet = await Promise.all(querys);
+    session.close();
+    return {
+      id,
+      name: resultSet[0].records[0].get("name"),
+      alphabet: resultSet[1].records[0].get("a").properties.symbols,
+      states: resultSet[2].records.map((s) => s.get("s").properties),
+      transitions: resultSet[3].records.map((t) => {
+        let transition = t.get("t").properties;
+        transition.state_src_id = {
+          id: transition.state_src_id,
+          x: transition.src_coord.x,
+          y: transition.src_coord.y,
+        };
+        transition.state_dst_id = {
+          id: transition.state_dst_id,
+          x: transition.dst_coord.x,
+          y: transition.dst_coord.y,
+        };
+        return transition;
+      }),
+    };
+  }catch(error){
+    return { error }
+  }
+  
 }
 
 /**
- * List all the automatas stored on database
+ * Retrieves a list of all the automatas stored on database
  * @returns a list of automatas
  */
 async function listAllAutomatas() {
@@ -65,72 +81,44 @@ async function listAllAutomatas() {
  */
 async function saveAutomata(id, name, alphabet, states, transitions) {
   try {
-    await driver
-      .session()
-      .run(`create(:Automata{ id : '${id}' , name:'${name}'});`);
-    await driver
-      .session()
-      .run(
-        `match(r:Repository) , (a:Automata) where r.name = 'Repo' and a.id = '${id}' create(r)-[:contains]-> (a);`
-      );
-    await driver
-      .session()
-      .run(
-        `create(:Alphabet{id: 'Alp${id}', symbols:[${alphabet.map((a) =>
-          json.stringify(a)
-        )}]});`
-      );
-    await driver
-      .session()
-      .run(
-        `match(a:Automata) , (alp:Alphabet) where a.id = '${id}' and alp.id = 'Alp${id}' create(a)-[:alphabet]->(alp);`
-      );
-    await Promise.all(
-      states.map((s) =>
-        driver
-          .session()
-          .run(
-            `create(:State{ id:'${s.id}', name:'${s.name}' , coord:point({x: ${s.coord.x}, y: ${s.coord.y}}) ,end:${s.end}, start:${s.start}})`
-          )
-      )
+    //Creates an automata node
+    await driver.session().run(`create(:Automata{ id : '${id}' , name:'${name}'});`);
+    //Creates a relation between repository node and automata
+    await driver.session().run(`match(r:Repository) , (a:Automata) where r.name = 
+      'Repo' and a.id = '${id}' create(r)-[:contains]-> (a);`
     );
-    await Promise.all(
-      states.map((s) =>
-        driver
-          .session()
-          .run(
-            `match(a:Automata) , (s:State) where a.id = '${id}' and s.id = '${s.id}' create(a)-[:states]->(s);`
-          )
-      )
+    //Creates an alphabet node
+    await driver.session().run(`create(:Alphabet{id: 'Alp${id}',
+      symbols:[${alphabet.map((a) => json.stringify(a))}]});`
     );
-    await Promise.all(
-      transitions.map((t) =>
-        driver
-          .session()
-          .run(
-            `create(:Transition{ id:'${t.id}', state_src_id:'${
-              t.state_src_id.id
-            }', src_coord:point({x: ${t.state_src_id.x}, y: ${
-              t.state_src_id.y
-            }}), state_dst_id:'${t.state_dst_id.id}', dst_coord:point({x: ${
-              t.state_dst_id.x
-            }, y: ${t.state_dst_id.y}}), symbols:[${t.symbols.map((s) =>
-              json.stringify(s)
-            )}], coordTemp: point({x: ${t.coordTemp.x}, y: ${
-              t.coordTemp.y
-            }})});`
-          )
-      )
+    //Creates a relation between automata and alphabet
+    await driver.session().run(`match(a:Automata) , (alp:Alphabet)
+      where a.id = '${id}' and alp.id = 'Alp${id}' create(a)-[:alphabet]->(alp);`
     );
-    await Promise.all(
-      transitions.map((t) =>
-        driver
-          .session()
-          .run(
-            `match(a:Automata) , (tr:Transition) where a.id = '${id}' and tr.id = '${t.id}' create(a)-[:transitions]->(tr);`
-          )
-      )
-    );
+    //Creates a series of states that belongs to the automata
+    await Promise.all(states.map((s) => driver.session().run(`create(:State{ 
+      id:'${s.id}', name:'${s.name}' , coord:point({x: ${s.coord.x}, 
+      y: ${s.coord.y}}) ,end:${s.end}, start:${s.start}})`
+    )));
+    //Creates the relations between the saved automata and his states
+    await Promise.all(states.map((s) => driver.session().run(`match(a:Automata) ,
+      (s:State) where a.id = '${id}' and s.id = '${s.id}' create(a)-[:states]->(s);`
+    )));
+    //Creates a series of states that belongs to the automata
+    await Promise.all(transitions.map((t) => driver.session().run(
+      `create(:Transition{ id:'${t.id}',
+      state_src_id:'${t.state_src_id.id}',
+      src_coord:point({x: ${t.state_src_id.x}, y: ${t.state_src_id.y}}),
+      state_dst_id:'${t.state_dst_id.id}',
+      dst_coord:point({x: ${t.state_dst_id.x}, y: ${t.state_dst_id.y}}),
+      symbols:[${t.symbols.map((s) => json.stringify(s))}],
+      coordTemp: point({x: ${t.coordTemp.x}, y: ${t.coordTemp.y}})});`
+    )));
+    //Creates the relations between the saved automata and his transitions
+    await Promise.all(transitions.map((t) => driver.session().run(
+      `match(a:Automata) , (tr:Transition) where a.id = '${id}' and tr.id = '${t.id}'
+      create(a)-[:transitions]->(tr);`
+    )));
     return {
       id,
       name,
@@ -139,7 +127,7 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
       transitions,
     };
   } catch (error) {
-    return "An error has ocurred while saving the automata";
+    return { error };
   }
 }
 
@@ -166,7 +154,7 @@ async function deleteAutomata(id) {
 }
 
 /**
- * Replace an automata stored on db with a new one with diferent values
+ * Replace an automata stored on database with a new one with diferent values
  * @param {*} id ID of automata of replace
  * @param {*} name new name of the automata
  * @param {*} alphabet new alphabet of the automata

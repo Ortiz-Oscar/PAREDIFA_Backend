@@ -1,6 +1,17 @@
-const { GraphQLObjectType, GraphQLList, GraphQLString, GraphQLNonNull, GraphQLInputObjectType } = require('graphql');
-const { transitionType } = require('./transition')
-const {stateType} = require('./state')
+const { GraphQLObjectType, GraphQLList, GraphQLString, GraphQLNonNull } = require('graphql');
+const { transitionType } = require('./transition.js')
+const {stateType} = require('./state.js')
+/*
+ * Description:
+ * Custom automata graphQL type for querys
+ * EIF400 -- Paradigmas de Programacion
+ * @since II Term - 2021
+ * @authors Team 01-10am
+ *  - Andres Alvarez Duran 117520958 
+ *  - Joaquin Barrientos Monge 117440348
+ *  - Oscar Ortiz Chavarria 208260347
+ *  - David Zarate Marin 116770797
+ */
 const automataType = new GraphQLObjectType({
     name:'Automata',
     description:'Automata representation',

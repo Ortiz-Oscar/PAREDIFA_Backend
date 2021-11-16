@@ -1,18 +1,23 @@
-const {
-  GraphQLObjectType,
-  GraphQLList,
-  GraphQLString,
-  GraphQLBoolean,
-} = require("graphql");
-const {
-  deleteAutomata,
-  saveAutomata,
-  replaceAutomata,
-} = require("../../resolvers/automataresolver.js");
-const { automataType } = require("../types/automata.js");
-const { inputStateType } = require("../types/state_input.js");
-const { inputTransitionType } = require("../types/transition_input.js");
-
+//GraphQL types
+const { GraphQLObjectType,  GraphQLList,  GraphQLString,  GraphQLBoolean,} = require("graphql");
+//Custom types
+const { automataType } = require("../types/automata/automata.js");
+const { inputStateType } = require("../types/input/state_input.js");
+const { inputTransitionType } = require("../types/input/transition_input.js");
+//Resolvers
+const {  deleteAutomata,  saveAutomata,  replaceAutomata,} = require("../../resolvers/automataresolver.js");
+/*
+ *
+ * Description:
+ * Handle mutation querys in graphql schema
+ * EIF400 -- Paradigmas de Programacion
+ * @since II Term - 2021
+ * @authors Team 01-10am
+ *  - Andres Alvarez Duran 117520958 
+ *  - Joaquin Barrientos Monge 117440348
+ *  - Oscar Ortiz Chavarria 208260347
+ *  - David Zarate Marin 116770797
+ */
 const mutation = new GraphQLObjectType({
   name: "Mutation",
   description: "Mutate data stored on database",
