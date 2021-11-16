@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
  * Description:
  * Mail sender function
  * Account data
- * Mail direction: eif400paredifag01@gmail.com
+ * Mail adress: eif400paredifag01@gmail.com
  * Password: PAREDIFAPROJECT
  * EIF400 -- Paradigmas de Programacion
  * @since II Term - 2021
