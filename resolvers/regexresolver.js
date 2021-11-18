@@ -43,21 +43,20 @@ async function compileRE(re) {
     })
   })
 
-  //Almacena los movimientos visitados para no volver a hacerlo
+  //Almacena los movimientos procesados para no volver a hacerlo
   let visitedEdges = [];
   
   //Unifica los simbolos de los movimientos de un mismo source y target
   const processedEdges = edges.reduce((acc, currentEdge) => {
-    let result = [];
     if(!visitedEdges.some(coord => coord.source === currentEdge.source && coord.target === currentEdge.target)){
       let relatedEdges = edges.filter(e => e.source === currentEdge.source && e.target === currentEdge.target);
       let unifiedSymbols = (relatedEdges.map(edge => edge.symbol)).join();
       relatedEdges[0].symbol = unifiedSymbols;
       visitedEdges.push( ({source:currentEdge.source, target:currentEdge.target}) );
-      result.push(relatedEdges[0]);
+      return [...acc,relatedEdges[0]]
     }
-    return [...acc, result];
-  }, []).flatMap(edge => edge);
+    return [...acc];
+  }, [])
 
   console.log(processedEdges, edges);
   return {
