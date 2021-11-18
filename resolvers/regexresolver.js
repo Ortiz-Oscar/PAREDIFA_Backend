@@ -23,23 +23,46 @@ async function compileRE(re) {
   const regularExpression = { value: re.RE, type: "regex" };//Object that is to be sent
   let response = await axios.post(prologEndPoint, regularExpression);
   let finiteAutomata = response.data.fa;
+
+  const processedNodes = finiteAutomata.states.map((state, index) => ({
+    name: index,
+    label: `S${index}`,
+    initial: finiteAutomata.initial === state,
+    final: finiteAutomata.finals.some((final) => final === state),
+  }));
+
+  //Procesa los movimientos que vienen del servidor
+  let edges = finiteAutomata.moves.map((move) => {
+    let parsedMove =  move.split('==>').flatMap(i => i.split("/"));
+    const movementSource = finiteAutomata.states.indexOf(parsedMove[0]);
+    const movementTarget = finiteAutomata.states.indexOf(parsedMove[2]);
+    return ({
+      source: movementSource,
+      target: movementTarget,
+      symbol: parsedMove[1],
+    })
+  })
+
+  //Almacena los movimientos visitados para no volver a hacerlo
+  let visitedEdges = [];
+  
+  //Unifica los simbolos de los movimientos de un mismo source y target
+  const processedEdges = edges.reduce((acc, currentEdge) => {
+    let result = [];
+    if(!visitedEdges.some(coord => coord.source === currentEdge.source && coord.target === currentEdge.target)){
+      let relatedEdges = edges.filter(e => e.source === currentEdge.source && e.target === currentEdge.target);
+      let unifiedSymbols = (relatedEdges.map(edge => edge.symbol)).join();
+      relatedEdges[0].symbol = unifiedSymbols;
+      visitedEdges.push( ({source:currentEdge.source, target:currentEdge.target}) );
+      result.push(relatedEdges[0]);
+    }
+    return [...acc, result];
+  }, []).flatMap(edge => edge);
+
+  console.log(processedEdges, edges);
   return {
-    nodes: finiteAutomata.states.map((state, index) => ({
-      name: index,
-      label: `S${index}`,
-      initial: finiteAutomata.initial === state,
-      final: finiteAutomata.finals.some((final) => final === state),
-    })),
-    edges: finiteAutomata.moves.map((move) => {
-      let parsedMove =  move.split('==>').flatMap(i => i.split("/"));
-      const movementSource = finiteAutomata.states.indexOf(parsedMove[0]);
-      const movementTarget = finiteAutomata.states.indexOf(parsedMove[2]);
-      return ({
-        source: movementSource,
-        target: movementTarget,
-        symbol: parsedMove[1],
-      })
-  }),
+    nodes: processedNodes,
+    edges: processedEdges,
     alphabet: finiteAutomata.vocabulary,
   };
 }
