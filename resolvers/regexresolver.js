@@ -20,13 +20,13 @@ const axios = require("axios");
 async function compileRE(re) {
   const prologEndPoint = re.simpBeforeComp ? "http://localhost:9000/simplifier" 
                                            : "http://localhost:9000/compiler";
-  const regularExpression = { value: re.RE, type: "regex" };
+  const regularExpression = { value: re.RE, type: "regex" };//Object that is to be sent
   let response = await axios.post(prologEndPoint, regularExpression);
   let finiteAutomata = response.data.fa;
   return {
     nodes: finiteAutomata.states.map((state, index) => ({
       name: index,
-      label: state,
+      label: `S${index}`,
       initial: finiteAutomata.initial === state,
       final: finiteAutomata.finals.some((final) => final === state),
     })),
