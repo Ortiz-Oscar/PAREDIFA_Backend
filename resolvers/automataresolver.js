@@ -21,7 +21,7 @@ const cache = require("../utils/cachemanager.js")
  */
 async function getAutomata(id) {
   try{
-    if( cache.has(id) ){
+    if(cache.has(id)){
       return cache.get(id);
     }
     let session = driver.session();
@@ -125,13 +125,14 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
       `match(a:Automata) , (tr:Transition) where a.id = '${id}' and tr.id = '${t.id}'
       create(a)-[:transitions]->(tr);`
     )));
-    return {
+    const finiteAutomata = {
       id,
       name,
       alphabet,
       states,
       transitions,
-    };
+    }
+    return finiteAutomata;
   } catch (error) {
     return { error };
   }
@@ -144,6 +145,9 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
  */
 async function deleteAutomata(id) {
   try {
+    if(cache.has(id)){
+      cache.del(id);//Elimina el automata almacenado en cache 
+    }
     const querys = [
       `match(:Automata{id:"${id}"})-[:states]->(s:State) detach delete s;`,
       `match(:Automata{id:"${id}"})-[:transitions]->(t:Transition) detach delete t;`,
