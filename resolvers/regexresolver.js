@@ -22,9 +22,8 @@ async function compileRE(re) {
   const prologEndPoint = re.simpBeforeComp ? "http://localhost:9000/simplifier" 
                                            : "http://localhost:9000/compiler";
   const regularExpression = { value: re.RE, type: "regex" }; //Object that is to be sent
-  const cacheKey = [re.RE, re.simpBeforeComp].join(); //Cache key to check if it stored on cache
+  const cacheKey = [re.RE, re.simpBeforeComp].join(); //Cache key to check if regex is stored on cache
   if(cache.has(cacheKey)){ //Check if automata is stored on cache
-    console.log(cacheKey);
     return cache.get(cacheKey);
   }
   try{
@@ -69,7 +68,7 @@ async function compileRE(re) {
       edges: processedEdges,
       alphabet: finiteAutomata.vocabulary,
     }
-    cache.set(cacheKey, DFA);//Save DFA in cache for later compiling
+    cache.set(cacheKey, DFA);//Save DFA in cache for later requests
     return DFA;
   }catch(e){
     return e
