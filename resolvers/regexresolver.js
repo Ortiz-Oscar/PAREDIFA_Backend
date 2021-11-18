@@ -49,11 +49,11 @@ async function compileRE(re) {
   //Unifica los simbolos de los movimientos de un mismo source y target
   const processedEdges = edges.reduce((acc, currentEdge) => {
     if(!visitedEdges.some(coord => coord.source === currentEdge.source && coord.target === currentEdge.target)){
-      let relatedEdges = edges.filter(e => e.source === currentEdge.source && e.target === currentEdge.target);
-      let unifiedSymbols = (relatedEdges.map(edge => edge.symbol)).join();
-      relatedEdges[0].symbol = unifiedSymbols;
+      let unifiedSymbols = (edges.filter(e => e.source === currentEdge.source && e.target === currentEdge.target)
+                           .map(edge => edge.symbol)).join();
+      currentEdge.symbol = unifiedSymbols;
       visitedEdges.push( ({source:currentEdge.source, target:currentEdge.target}) );
-      return [...acc,relatedEdges[0]]
+      return [...acc,currentEdge]
     }
     return [...acc];
   }, [])
