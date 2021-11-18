@@ -1,5 +1,5 @@
 const { driver } = require("../db/db.js");
-
+const cache = require("../utils/cachemanager.js")
 /*
  *
  * Description:
@@ -11,7 +11,6 @@ const { driver } = require("../db/db.js");
  *  - Joaquin Barrientos Monge 117440348
  *  - Oscar Ortiz Chavarria 208260347
  *  - David Zarate Marin 116770797
- *
  */
 
 /**
@@ -20,6 +19,9 @@ const { driver } = require("../db/db.js");
  */
 async function aboutResolver() {
   try{
+    if(cache.has("about_Info")){
+      return cache.get("about_Info");
+    }
     let session = driver.session();
     let querys = [
       await session.run("match(:Authors)-[:author]->(A:Author) return A as author;"),
@@ -30,13 +32,15 @@ async function aboutResolver() {
     ]
     let resultSet = await Promise.all(querys);
     session.close();
-    return {
+    const about_Info = { //Object that is to be sent
       authors: resultSet[0].records.map((a) => a.get("author").properties),
       team: resultSet[1].records[0].get("team").properties,
       course: resultSet[2].records[0].get("course").properties,
       term: resultSet[3].records[0].get("term").properties,
       version: resultSet[4].records[0].get("version").properties,
-    };
+    }
+    cache.set("about_Info", about_Info);
+    return about_Info;
   }catch(error){
     return { error }
   }

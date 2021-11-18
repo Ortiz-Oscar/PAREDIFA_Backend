@@ -1,4 +1,5 @@
 const axios = require("axios");
+const cache = require("../utils/cachemanager.js")
 /*
  *
  * Description:
@@ -13,18 +14,22 @@ const axios = require("axios");
  */
 
 /**
- * @description Compiles a regular expression into a automata
+ * @description Compiles a regular expression into a determistic finite automata automata
  * @param {*} re Object that represents the regular expression
  * @returns a new automata object 
  */
 async function compileRE(re) {
   const prologEndPoint = re.simpBeforeComp ? "http://localhost:9000/simplifier" 
                                            : "http://localhost:9000/compiler";
-  const regularExpression = { value: re.RE, type: "regex" };//Object that is to be sent
+  const regularExpression = { value: re.RE, type: "regex" }; //Object that is to be sent
+  const cacheKey = [re.RE, re.simpBeforeComp].join(); //Cache key to check if it stored on cache
+  if(cache.has(cacheKey)){ //Check if automata is stored on cache
+    console.log(cacheKey);
+    return cache.get(cacheKey);
+  }
   try{
     let response = await axios.post(prologEndPoint, regularExpression);
     let finiteAutomata = response.data.fa;
-  
     const processedNodes = finiteAutomata.states.map((state, index) => ({
       name: index,
       label: `S${index}`,
@@ -32,7 +37,7 @@ async function compileRE(re) {
       final: finiteAutomata.finals.some((final) => final === state),
     }));
   
-    //Procesa los movimientos que vienen del servidor
+    //Formatea los movimientos que vienen del servidor
     let edges = finiteAutomata.moves.map((move) => {
       let parsedMove =  move.split('==>').flatMap(i => i.split("/"));
       const movementSource = finiteAutomata.states.indexOf(parsedMove[0]);
@@ -58,12 +63,14 @@ async function compileRE(re) {
       }
       return [...acc];
     }, [])
-    return {
+
+    const DFA = { //Object that is to be returned
       nodes: processedNodes,
       edges: processedEdges,
       alphabet: finiteAutomata.vocabulary,
-    };
-
+    }
+    cache.set(cacheKey, DFA);//Save DFA in cache for later compiling
+    return DFA;
   }catch(e){
     return e
   }

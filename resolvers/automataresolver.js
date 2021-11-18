@@ -1,5 +1,6 @@
 const { json } = require("neo4j-driver-core");
 const { driver } = require("../db/db.js");
+const cache = require("../utils/cachemanager.js")
 /*
  *
  * Description:
@@ -20,6 +21,9 @@ const { driver } = require("../db/db.js");
  */
 async function getAutomata(id) {
   try{
+    if( cache.has(id) ){
+      return cache.get(id);
+    }
     let session = driver.session();
     let querys = [
       //Returns automata name
@@ -33,7 +37,7 @@ async function getAutomata(id) {
     ]
     let resultSet = await Promise.all(querys);
     session.close();
-    return {
+    let finiteAutomata = {
       id,
       name: resultSet[0].records[0].get("name"),
       alphabet: resultSet[1].records[0].get("a").properties.symbols,
@@ -53,6 +57,8 @@ async function getAutomata(id) {
         return transition;
       }),
     };
+    cache.set(id, finiteAutomata); //Cachea el automata recuperado
+    return finiteAutomata;
   }catch(error){
     return { error }
   }
