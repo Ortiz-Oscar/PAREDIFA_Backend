@@ -1,5 +1,4 @@
 const axios = require("axios");
-const prologURL = "http://localhost:9000/compiler";
 /*
  *
  * Description:
@@ -19,21 +18,28 @@ const prologURL = "http://localhost:9000/compiler";
  * @returns a new automata object 
  */
 async function compileRE(re) {
-  const regularExpression = { value: re, type: "regex" };
-  let response = await axios.post(prologURL, regularExpression);
+  const prologEndPoint = re.simpBeforeComp ? "http://localhost:9000/simplifier" 
+                                           : "http://localhost:9000/compiler";
+  const regularExpression = { value: re.RE, type: "regex" };
+  let response = await axios.post(prologEndPoint, regularExpression);
   let finiteAutomata = response.data.fa;
   return {
-    nodes: finiteAutomata.states.map((state) => ({
-      name: parseInt(state[1]),
+    nodes: finiteAutomata.states.map((state, index) => ({
+      name: index,
       label: state,
       initial: finiteAutomata.initial === state,
       final: finiteAutomata.finals.some((final) => final === state),
     })),
-    edges: finiteAutomata.moves.map((move) => ({
-      source: parseInt(move[1]),
-      target: parseInt(move[8]),
-      symbol: move[3],
-    })),
+    edges: finiteAutomata.moves.map((move) => {
+      let parsedMove =  move.split('==>').flatMap(i => i.split("/"));
+      const movementSource = finiteAutomata.states.indexOf(parsedMove[0]);
+      const movementTarget = finiteAutomata.states.indexOf(parsedMove[2]);
+      return ({
+        source: movementSource,
+        target: movementTarget,
+        symbol: parsedMove[1],
+      })
+  }),
     alphabet: finiteAutomata.vocabulary,
   };
 }

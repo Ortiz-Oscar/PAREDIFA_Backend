@@ -27,7 +27,7 @@ async function sendImage(args) {
     secure: false, // true for 465, false for other ports
     auth: {
       user: "eif400paredifag01@gmail.com", // generated ethereal user
-      pass: "zvpanjdszgbntcfi", // generated ethereal password
+      pass: "PAREDIFAPROJECT", // generated ethereal password
     },
   });
   // send mail with defined transport object

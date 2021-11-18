@@ -60,7 +60,7 @@ const query = new GraphQLObjectType({
       args: {
         re: { type: regularExpresionType },
       },
-      resolve: (_, args) => compileRE(args.re.RE),
+      resolve: (_, args) => compileRE(args.re),
     },
     about: {
       type: aboutType,
