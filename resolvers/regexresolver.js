@@ -21,49 +21,52 @@ async function compileRE(re) {
   const prologEndPoint = re.simpBeforeComp ? "http://localhost:9000/simplifier" 
                                            : "http://localhost:9000/compiler";
   const regularExpression = { value: re.RE, type: "regex" };//Object that is to be sent
-  let response = await axios.post(prologEndPoint, regularExpression);
-  let finiteAutomata = response.data.fa;
-
-  const processedNodes = finiteAutomata.states.map((state, index) => ({
-    name: index,
-    label: `S${index}`,
-    initial: finiteAutomata.initial === state,
-    final: finiteAutomata.finals.some((final) => final === state),
-  }));
-
-  //Procesa los movimientos que vienen del servidor
-  let edges = finiteAutomata.moves.map((move) => {
-    let parsedMove =  move.split('==>').flatMap(i => i.split("/"));
-    const movementSource = finiteAutomata.states.indexOf(parsedMove[0]);
-    const movementTarget = finiteAutomata.states.indexOf(parsedMove[2]);
-    return ({
-      source: movementSource,
-      target: movementTarget,
-      symbol: parsedMove[1],
-    })
-  })
-
-  //Almacena los movimientos procesados para no volver a hacerlo
-  let visitedEdges = [];
+  try{
+    let response = await axios.post(prologEndPoint, regularExpression);
+    let finiteAutomata = response.data.fa;
   
-  //Unifica los simbolos de los movimientos de un mismo source y target
-  const processedEdges = edges.reduce((acc, currentEdge) => {
-    if(!visitedEdges.some(coord => coord.source === currentEdge.source && coord.target === currentEdge.target)){
-      let unifiedSymbols = (edges.filter(e => e.source === currentEdge.source && e.target === currentEdge.target)
-                           .map(edge => edge.symbol)).join();
-      currentEdge.symbol = unifiedSymbols;
-      visitedEdges.push( ({source:currentEdge.source, target:currentEdge.target}) );
-      return [...acc,currentEdge]
-    }
-    return [...acc];
-  }, [])
+    const processedNodes = finiteAutomata.states.map((state, index) => ({
+      name: index,
+      label: `S${index}`,
+      initial: finiteAutomata.initial === state,
+      final: finiteAutomata.finals.some((final) => final === state),
+    }));
+  
+    //Procesa los movimientos que vienen del servidor
+    let edges = finiteAutomata.moves.map((move) => {
+      let parsedMove =  move.split('==>').flatMap(i => i.split("/"));
+      const movementSource = finiteAutomata.states.indexOf(parsedMove[0]);
+      const movementTarget = finiteAutomata.states.indexOf(parsedMove[2]);
+      return ({
+        source: movementSource,
+        target: movementTarget,
+        symbol: parsedMove[1],
+      })
+    })
+  
+    //Almacena los movimientos procesados para no volver a hacerlo
+    let visitedEdges = [];
+    
+    //Unifica los simbolos de los movimientos de un mismo source y target
+    const processedEdges = edges.reduce((acc, currentEdge) => {
+      if(!visitedEdges.some(coord => coord.source === currentEdge.source && coord.target === currentEdge.target)){
+        let unifiedSymbols = (edges.filter(e => e.source === currentEdge.source && e.target === currentEdge.target)
+                             .map(edge => edge.symbol)).join();
+        currentEdge.symbol = unifiedSymbols;
+        visitedEdges.push( ({source:currentEdge.source, target:currentEdge.target}) );
+        return [...acc,currentEdge]
+      }
+      return [...acc];
+    }, [])
+    return {
+      nodes: processedNodes,
+      edges: processedEdges,
+      alphabet: finiteAutomata.vocabulary,
+    };
 
-  console.log(processedEdges, edges);
-  return {
-    nodes: processedNodes,
-    edges: processedEdges,
-    alphabet: finiteAutomata.vocabulary,
-  };
+  }catch(e){
+    return e
+  }
 }
 module.exports = {
   compileRE,
