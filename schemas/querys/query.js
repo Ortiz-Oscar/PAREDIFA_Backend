@@ -5,11 +5,15 @@ const { aboutType } = require("../types/about/about.js");
 const { automataType } = require("../types/automata/automata.js");
 const { regularExpresionType } = require("../types/input/regex_input.js");
 const { reAutomataType } = require("../types/regex/regexautomata.js");
+//Custom inputs
+const { inputStateType } = require("../types/input/state_input.js");
+const { inputTransitionType } = require("../types/input/transition_input.js");
 //Resolvers
 const { sendImage } = require("../../utils/sendImage.js");
 const {  getAutomata,  listAllAutomatas,} = require("../../resolvers/automataresolver.js");
 const { aboutResolver } = require("../../resolvers/aboutresolver.js");
 const { compileRE } = require("../../resolvers/regexresolver.js");
+const { convertNFAtoDFA } = require("../../resolvers/nfa_to_dfaresolver.js")
 /*
  *
  * Description:
@@ -67,6 +71,16 @@ const query = new GraphQLObjectType({
       description: "General information about the project",
       resolve: () => aboutResolver(),
     },
+    convertNFA_into_DFA:{
+      type: reAutomataType,
+      description:"Parse an NFA into a DFA",
+      args:{
+        alphabet: { type: GraphQLList(GraphQLString) },
+        states: { type: GraphQLList(inputStateType) },
+        transitions: { type: GraphQLList(inputTransitionType) },
+      },
+      resolve:(_,args)=>convertNFAtoDFA(args.alphabet, args.states, args.transitions),
+    }
   }),
 });
 
