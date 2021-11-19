@@ -27,7 +27,7 @@ async function getAutomata(id) {
     let session = driver.session();
     let querys = [
       //Returns automata name
-      await session.run(`match(a:Automata{id:"${id}"}) return a.name as name`),
+      await session.run(`match(a:Automata{id:"${id}"}) return a.regex as regex`),
       //Returns the alphabet
       await session.run(`match (:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) return a`),
       //Returns the list of states
@@ -39,7 +39,7 @@ async function getAutomata(id) {
     session.close();
     let finiteAutomata = {
       id,
-      name: resultSet[0].records[0].get("name"),
+      regex: resultSet[0].records[0].get("regex"),
       alphabet: resultSet[1].records[0].get("a").properties.symbols,
       states: resultSet[2].records.map((s) => s.get("s").properties),
       transitions: resultSet[3].records.map((t) => {
@@ -62,7 +62,6 @@ async function getAutomata(id) {
   }catch(error){
     return { error }
   }
-  
 }
 
 /**
@@ -79,16 +78,16 @@ async function listAllAutomatas() {
 /**
  * Save a new automata on database
  * @param {*} id ID of automata to save
- * @param {*} name Name of automata to save
+ * @param {*} regex regular expression associated with automata
  * @param {*} alphabet List of symbols that represents the alphabet of the automata
  * @param {*} states List of states of the automata
  * @param {*} transitions List of transitions of the automata
  * @returns the automata saved on db
  */
-async function saveAutomata(id, name, alphabet, states, transitions) {
+async function saveAutomata(id, regex, alphabet, states, transitions) {
   try {
     //Creates an automata node
-    await driver.session().run(`create(:Automata{ id : '${id}' , name:'${name}'});`);
+    await driver.session().run(`create(:Automata{ id : '${id}' , regex:'${regex}'});`);
     //Creates a relation between repository node and automata
     await driver.session().run(`match(r:Repository) , (a:Automata) where r.name = 
       'Repo' and a.id = '${id}' create(r)-[:contains]-> (a);`
@@ -127,7 +126,7 @@ async function saveAutomata(id, name, alphabet, states, transitions) {
     )));
     const finiteAutomata = {
       id,
-      name,
+      regex,
       alphabet,
       states,
       transitions,
@@ -154,28 +153,42 @@ async function deleteAutomata(id) {
       `match(:Automata{id:"${id}"})-[:alphabet]->(a:Alphabet) detach delete a;`,
     ];
     await Promise.all(querys.map((query) => driver.session().run(query)));
-    await driver
-      .session()
-      .run(`match(a:Automata{id:"${id}"}) detach delete a;`);
+    await driver.session().run(`match(a:Automata{id:"${id}"}) detach delete a;`);
     return true;
   } catch (e) {
     return false;
   }
 }
+/**
+ * 
+ * @param {*} regex regex string to delete automata
+ * @returns boolean if successful, false otherwise
+ */
+async function deleteAutomataByRegex(regex){
+  try{
+    const session = driver.session();
+    let queryResult = await session.run(`match(n:Automata{ regex:"${regex}"}) return n.id as automataID;`)
+    let automataID = queryResult.records[0].get("automataID")
+    deleteAutomata(automataID);
+    return true;
+  }catch(_){
+    return false;
+  }
 
+}
 /**
  * Replace an automata stored on database with a new one with diferent values
  * @param {*} id ID of automata of replace
- * @param {*} name new name of the automata
+ * @param {*} regex regular expression associated with automata
  * @param {*} alphabet new alphabet of the automata
  * @param {*} states new list of states
  * @param {*} transitions new list of transitions
  * @returns true if successful or false otherwise
  */
-async function replaceAutomata(id, name, alphabet, states, transitions) {
+async function replaceAutomata(id, regex, alphabet, states, transitions) {
   try {
     await deleteAutomata(id);
-    await saveAutomata(id, name, alphabet, states, transitions);
+    await saveAutomata(id, regex, alphabet, states, transitions);
     return true;
   } catch (e) {
     return false;
@@ -187,4 +200,5 @@ module.exports = {
   saveAutomata,
   deleteAutomata,
   replaceAutomata,
+  deleteAutomataByRegex,
 };

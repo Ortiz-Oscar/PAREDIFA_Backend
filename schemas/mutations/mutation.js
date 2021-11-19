@@ -5,7 +5,8 @@ const { automataType } = require("../types/automata/automata.js");
 const { inputStateType } = require("../types/input/state_input.js");
 const { inputTransitionType } = require("../types/input/transition_input.js");
 //Resolvers
-const {  deleteAutomata,  saveAutomata,  replaceAutomata,} = require("../../resolvers/automataresolver.js");
+const {  deleteAutomata,  saveAutomata,
+    replaceAutomata, deleteAutomataByRegex} = require("../../resolvers/automataresolver.js");
 /*
  *
  * Description:
@@ -27,7 +28,7 @@ const mutation = new GraphQLObjectType({
       description: "Save a new automata on database",
       args: {
         id: { type: GraphQLString },
-        name: { type: GraphQLString },
+        regex: { type: GraphQLString },
         alphabet: { type: GraphQLList(GraphQLString) },
         states: { type: GraphQLList(inputStateType) },
         transitions: { type: GraphQLList(inputTransitionType) },
@@ -35,7 +36,7 @@ const mutation = new GraphQLObjectType({
       resolve: (_, args) =>
         saveAutomata(
           args.id,
-          args.name,
+          args.regex,
           args.alphabet,
           args.states,
           args.transitions
@@ -54,7 +55,7 @@ const mutation = new GraphQLObjectType({
       description: "Replace a single automata stored on database",
       args: {
         id: { type: GraphQLString },
-        name: { type: GraphQLString },
+        regex: { type: GraphQLString },
         alphabet: { type: GraphQLList(GraphQLString) },
         states: { type: GraphQLList(inputStateType) },
         transitions: { type: GraphQLList(inputTransitionType) },
@@ -62,12 +63,20 @@ const mutation = new GraphQLObjectType({
       resolve: (_, args) =>
         replaceAutomata(
           args.id,
-          args.name,
+          args.regex,
           args.alphabet,
           args.states,
           args.transitions
         ),
     },
+    deleteAutomataByRegex:{
+      type:GraphQLBoolean,
+      description:"Deletes a single automata by regex stored on db",
+      args:{
+        regex: { type:GraphQLString }
+      },
+      resolve:(_, args)=>deleteAutomataByRegex(args.regex)
+    }
   }),
 });
 

@@ -17,7 +17,7 @@ const automataType = new GraphQLObjectType({
     description:'Automata representation',
     fields: () => ({
         id:{ type: GraphQLNonNull(GraphQLString) },
-        name:{ type: GraphQLNonNull(GraphQLString) },
+        regex:{ type: GraphQLNonNull(GraphQLString) },
         alphabet: {type: GraphQLNonNull(GraphQLList(GraphQLString))},
         states:{type: GraphQLNonNull(GraphQLList(stateType))},
         transitions:{type: GraphQLNonNull(GraphQLList(transitionType))},
