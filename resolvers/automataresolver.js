@@ -69,12 +69,25 @@ async function getAutomata(id) {
  * @returns a list of automatas
  */
 async function listAllAutomatas() {
-  let session = driver.session();
+  const session = driver.session();
   let idList = await session.run(`match(a:Automata) return a.id as id`);
   session.close();
   return Promise.all(idList.records.map((id) => getAutomata(id.get("id"))));
 }
 
+/**
+ * Checks tha number of automatas stored in db with tha same id as tha one of tha parameter
+ * @param {*} id 
+ * @returns the number of automatas with the same id
+ */
+async function countIDs(id){
+  try{
+    const response = await driver.session().run(`match(a:Automata{id:"${id}"}) return count(a) as idQuantity`);
+    return response.records[0].get("idQuantity").low;
+  }catch( _ ){
+    return -1;
+  }
+}
 /**
  * Save a new automata on database
  * @param {*} id ID of automata to save
@@ -86,6 +99,10 @@ async function listAllAutomatas() {
  */
 async function saveAutomata(id, regex, alphabet, states, transitions) {
   try {
+    const idQuantity = await countIDs(id);
+    if(idQuantity !== 0){
+      throw -1;
+    }
     //Creates an automata node
     await driver.session().run(`create(:Automata{ id : '${id}' , regex:'${regex}'});`);
     //Creates a relation between repository node and automata
@@ -124,16 +141,17 @@ async function saveAutomata(id, regex, alphabet, states, transitions) {
       `match(a:Automata) , (tr:Transition) where a.id = '${id}' and tr.id = '${t.id}'
       create(a)-[:transitions]->(tr);`
     )));
-    const finiteAutomata = {
+    return {
       id,
-      regex,
-      alphabet,
-      states,
-      transitions,
-    }
-    return finiteAutomata;
-  } catch (error) {
-    return { error };
+      repeatedID : false,
+      status : true,
+    };
+  } catch ( _ ) {
+    return {
+      id,
+      repeatedID : true,
+      status : false,
+    };
   }
 }
 

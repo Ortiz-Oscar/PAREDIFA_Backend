@@ -4,6 +4,7 @@ const { GraphQLObjectType,  GraphQLList,  GraphQLString,  GraphQLBoolean,} = req
 const { automataType } = require("../types/automata/automata.js");
 const { inputStateType } = require("../types/input/state_input.js");
 const { inputTransitionType } = require("../types/input/transition_input.js");
+const { saveStatusType } = require("../types/automata/savestatus.js");
 //Resolvers
 const {  deleteAutomata,  saveAutomata,
     replaceAutomata, deleteAutomataByRegex} = require("../../resolvers/automataresolver.js");
@@ -24,7 +25,7 @@ const mutation = new GraphQLObjectType({
   description: "Mutate data stored on database",
   fields: () => ({
     saveAutomata: {
-      type: automataType,
+      type: saveStatusType,
       description: "Save a new automata on database",
       args: {
         id: { type: GraphQLString },
