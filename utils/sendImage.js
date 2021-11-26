@@ -26,8 +26,8 @@ async function sendImage(args) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "eif400paredifag01@gmail.com", // generated ethereal user
-      pass: "PAREDIFAPROJECT", // generated ethereal password
+      user: process.env.emailUser, // generated ethereal user
+      pass: process.env.emailPassword, // generated ethereal password
     },
   });
   // send mail with defined transport object
@@ -39,7 +39,7 @@ async function sendImage(args) {
   };
   const DESCRIPTION = `EIF${COURSE.code}_${COURSE.subject}_${COURSE.cycle}_${COURSE.year}_${args.studentName}_${args.studentId}_${args.studentSchedule}`;
   let info = await transporter.sendMail({
-    from: 'eif400paredifag01@gmail.com', // sender address
+    from: process.env.emailUser, // sender address
     to: args.mailAddres, // reciever
     subject: DESCRIPTION, // Subject line
     html: `<h3>Greetings, ${args.studentName}</h3><br></br>

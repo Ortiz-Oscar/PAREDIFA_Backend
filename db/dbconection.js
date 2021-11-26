@@ -1,9 +1,6 @@
 /*
  *
- * Description:
- * Database conection for neo4j querys in resolvers
- * user: neo4j
- * password: 4ffg2SxnVRGoeoWxTV0f5qOaJlyiS9EovA4GIvQPGEA
+ * Description: Database conection for neo4j querys in resolvers
  * EIF400 -- Paradigmas de Programacion
  * @since II Term - 2021
  * @authors Team 01-10am
@@ -12,11 +9,13 @@
  *  - Oscar Ortiz Chavarria 208260347
  *  - David Zarate Marin 116770797
  */
-
 const neo4j = require("neo4j-driver");
+
+//We use the driver object to create neo4j sessions, each session can run only a query at a time and each session
+//is binded to his scope
 const driver = neo4j.driver(
-  "neo4j+s://6da34b2b.databases.neo4j.io",
-  neo4j.auth.basic("neo4j", "4ffg2SxnVRGoeoWxTV0f5qOaJlyiS9EovA4GIvQPGEA"), //Username and password
+  process.env.databaseURL,
+  neo4j.auth.basic(process.env.databaseuser, process.env.databasepassword), //Username and password
   {
     /* encrypted: 'ENCRYPTION_OFF' */
   }

@@ -3,7 +3,7 @@ const { parseTransitions, parsePrologDFA } = require("../utils/prologdataadapter
 /*
  *
  * Description:
- * If user is lazy enough, transform an NFA into a DFA using prolog server
+ * Handle requests to transform an NFA into a DFA using prolog server
  * EIF400 -- Paradigmas de Programacion
  * @since II Term - 2021
  * @authors Team 01-10am
@@ -12,8 +12,14 @@ const { parseTransitions, parsePrologDFA } = require("../utils/prologdataadapter
  *  - Oscar Ortiz Chavarria 208260347
  *  - David Zarate Marin 116770797
  */
-const converterURL = "http://localhost:9000/converter"
 
+/**
+ * 
+ * @param {*} alphabet Alphabet of automata
+ * @param {*} states States of automata
+ * @param {*} transitions Transitions of automata
+ * @returns a layout object with the information of the automata for layout algorithm
+ */
 async function convertNFAtoDFA(alphabet, states, transitions){
     const NFA = {   
         value : {
@@ -25,7 +31,7 @@ async function convertNFAtoDFA(alphabet, states, transitions){
         },
         type:"nfa",
     }
-    const response = await axios.post(converterURL, NFA);
+    const response = await axios.post(process.env.prologConverter, NFA);
     return parsePrologDFA(response.data.fa);
 }
 

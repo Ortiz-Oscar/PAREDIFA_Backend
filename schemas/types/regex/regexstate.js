@@ -1,7 +1,7 @@
 const {  GraphQLObjectType,  GraphQLString,  GraphQLInt,  GraphQLBoolean,} = require("graphql");
 /*
  * Description:
- * Custom state graphQL type for querys and simplify work for layout algorithm in client
+ * Custom state graphQL type to simplify work for layout algorithm in client
  * EIF400 -- Paradigmas de Programacion
  * @since II Term - 2021
  * @authors Team 01-10am

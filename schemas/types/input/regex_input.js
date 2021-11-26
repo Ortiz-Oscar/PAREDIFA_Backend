@@ -19,10 +19,6 @@ const regularExpresionType = new GraphQLInputObjectType({
       type: GraphQLNonNull(GraphQLString),
       description: "ID of regular expresion",
     },
-    checkSintax: {
-      type: GraphQLNonNull(GraphQLBoolean),
-      description: "Check syntax?",
-    },
     simpBeforeComp: {
       type: GraphQLNonNull(GraphQLBoolean),
       description: "Simplify expression before compiling?",

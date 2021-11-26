@@ -17,7 +17,7 @@ const { convertNFAtoDFA } = require("../../resolvers/nfa_to_dfaresolver.js")
 /*
  *
  * Description:
- * Handle mutation querys in graphql schema
+ * Handle querys in graphql schema
  * EIF400 -- Paradigmas de Programacion
  * @since II Term - 2021
  * @authors Team 01-10am

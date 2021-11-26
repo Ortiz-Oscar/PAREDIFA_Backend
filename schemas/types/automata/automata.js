@@ -21,7 +21,6 @@ const automataType = new GraphQLObjectType({
         alphabet: {type: GraphQLNonNull(GraphQLList(GraphQLString))},
         states:{type: GraphQLNonNull(GraphQLList(stateType))},
         transitions:{type: GraphQLNonNull(GraphQLList(transitionType))},
-        name:{type: GraphQLNonNull(GraphQLString)}
     })
 })
 

@@ -3,7 +3,7 @@ const { reStateType } = require("./regexstate.js");
 const { reTransitionType } = require("./regextransition.js");
 /*
  * Description:
- * Custom automata graphQL type for querys and simplify work for layout algorithm in client
+ * Custom automata graphQL type to simplify work for layout algorithm in client
  * EIF400 -- Paradigmas de Programacion
  * @since II Term - 2021
  * @authors Team 01-10am

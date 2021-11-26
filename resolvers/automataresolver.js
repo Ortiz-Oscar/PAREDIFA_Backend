@@ -1,6 +1,7 @@
 const { json } = require("neo4j-driver-core");
-const { driver } = require("../db/db.js");
-const cache = require("../utils/cachemanager.js")
+const { driver } = require("../db/dbconection.js");
+const { parseDBAutomata } = require("../utils/dbdataadapter.js");
+const cache = require("../utils/cachemanager.js");
 /*
  *
  * Description:
@@ -24,8 +25,8 @@ async function getAutomata(id) {
     if(cache.has(id)){
       return cache.get(id);
     }
-    let session = driver.session();
-    let querys = [
+    const session = driver.session();
+    const querys = [
       //Returns automata name
       await session.run(`match(a:Automata{id:"${id}"}) return a.regex as regex`),
       //Returns the alphabet
@@ -35,28 +36,9 @@ async function getAutomata(id) {
       //Returns the list of transitions
       await session.run(`match (:Automata{id:"${id}"})-[:transitions]->(t:Transition) return t`),
     ]
-    let resultSet = await Promise.all(querys);
+    const resultSet = await Promise.all(querys);
     session.close();
-    let finiteAutomata = {
-      id,
-      regex: resultSet[0].records[0].get("regex"),
-      alphabet: resultSet[1].records[0].get("a").properties.symbols,
-      states: resultSet[2].records.map((s) => s.get("s").properties),
-      transitions: resultSet[3].records.map((t) => {
-        let transition = t.get("t").properties;
-        transition.state_src_id = {
-          id: transition.state_src_id,
-          x: transition.src_coord.x,
-          y: transition.src_coord.y,
-        };
-        transition.state_dst_id = {
-          id: transition.state_dst_id,
-          x: transition.dst_coord.x,
-          y: transition.dst_coord.y,
-        };
-        return transition;
-      }),
-    };
+    let finiteAutomata = parseDBAutomata(id, resultSet);
     cache.set(id, finiteAutomata); //Cachea el automata recuperado
     return finiteAutomata;
   }catch(error){
@@ -105,7 +87,7 @@ async function saveAutomata(id, regex, alphabet, states, transitions) {
     }
     //Creates an automata node
     await driver.session().run(`create(:Automata{ id : '${id}' , regex:'${regex}'});`);
-    //Creates a relation between repository node and automata
+    //Creates a relation between repository node and the new automata
     await driver.session().run(`match(r:Repository) , (a:Automata) where r.name = 
       'Repo' and a.id = '${id}' create(r)-[:contains]-> (a);`
     );
@@ -113,7 +95,7 @@ async function saveAutomata(id, regex, alphabet, states, transitions) {
     await driver.session().run(`create(:Alphabet{id: 'Alp${id}',
       symbols:[${alphabet.map((a) => json.stringify(a))}]});`
     );
-    //Creates a relation between automata and alphabet
+    //Creates a relation between automata node and his alphabet
     await driver.session().run(`match(a:Automata) , (alp:Alphabet)
       where a.id = '${id}' and alp.id = 'Alp${id}' create(a)-[:alphabet]->(alp);`
     );
@@ -144,13 +126,11 @@ async function saveAutomata(id, regex, alphabet, states, transitions) {
     return {
       id,
       repeatedID : false,
-      status : true,
     };
   } catch ( _ ) {
     return {
       id,
       repeatedID : true,
-      status : false,
     };
   }
 }
@@ -163,7 +143,7 @@ async function saveAutomata(id, regex, alphabet, states, transitions) {
 async function deleteAutomata(id) {
   try {
     if(cache.has(id)){
-      cache.del(id);//Elimina el automata almacenado en cache 
+      cache.del(id);//Deletes cached automata
     }
     const querys = [
       `match(:Automata{id:"${id}"})-[:states]->(s:State) detach delete s;`,
@@ -185,8 +165,9 @@ async function deleteAutomata(id) {
 async function deleteAutomataByRegex(regex){
   try{
     const session = driver.session();
-    let queryResult = await session.run(`match(n:Automata{ regex:"${regex}"}) return n.id as automataID;`)
-    let automataID = queryResult.records[0].get("automataID")
+    const queryResult = await session.run(`match(n:Automata{ regex:"${regex}"}) return n.id as automataID;`)
+    const automataID = queryResult.records[0].get("automataID")
+    session.close();
     deleteAutomata(automataID);
     return true;
   }catch(_){

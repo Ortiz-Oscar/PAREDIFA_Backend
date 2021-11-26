@@ -20,8 +20,8 @@ const { parsePrologDFA } = require("../utils/prologdataadapter.js")
  * @returns a new automata object 
  */
 async function compileRE(re) {
-  const prologEndPoint = re.simpBeforeComp ? "http://localhost:9000/simplifier" 
-                                           : "http://localhost:9000/compiler";
+  const prologEndPoint = re.simpBeforeComp ? process.env.prologSimplifier
+                                           : process.env.prologCompiler;
   const regularExpression = { value: re.RE, type: "regex" }; //Object that is to be sent
   const cacheKey = [re.RE, re.simpBeforeComp].join(); //Cache key to check if regex is stored on cache
   if(cache.has(cacheKey)){ //Check if automata is stored on cache

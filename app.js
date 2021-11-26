@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("Express");
 const cors = require("cors");
 const { graphqlHTTP } = require("express-graphql");

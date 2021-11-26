@@ -1,5 +1,6 @@
-const { driver } = require("../db/db.js");
+const { driver } = require("../db/dbconection.js");
 const cache = require("../utils/cachemanager.js")
+const { parseDBAbout } = require("../utils/dbdataadapter.js")
 /*
  *
  * Description:
@@ -14,7 +15,7 @@ const cache = require("../utils/cachemanager.js")
  */
 
 /**
- * @description Makes database querys that retrieves project information from database
+ * @description Retrieves the project information from database
  * @returns an about object retrieved from database
  */
 async function aboutResolver() {
@@ -22,23 +23,22 @@ async function aboutResolver() {
     if(cache.has("about_Info")){
       return cache.get("about_Info");
     }
-    let session = driver.session();
+    const session = driver.session();
     let querys = [
+      //Authors
       await session.run("match(:Authors)-[:author]->(A:Author) return A as author;"),
+      //Team
       await session.run("match(:Authors)-[:team]->(t:Team) return t as team;"),
+      //Course
       await session.run("match(:Authors)-[:course]->(C:Course) return C as course;"),
+      //Term
       await session.run("match(:Authors)-[:term]->(t:Term) return t as term;"),
+      //Version
       await session.run("match(:Authors)-[:version]->(v:Version) return v as version;"),
     ]
-    let resultSet = await Promise.all(querys);
+    const resultSet = await Promise.all(querys);
     session.close();
-    const about_Info = { //Object that is to be sent
-      authors: resultSet[0].records.map((a) => a.get("author").properties),
-      team: resultSet[1].records[0].get("team").properties,
-      course: resultSet[2].records[0].get("course").properties,
-      term: resultSet[3].records[0].get("term").properties,
-      version: resultSet[4].records[0].get("version").properties,
-    }
+    const about_Info = parseDBAbout(resultSet)
     cache.set("about_Info", about_Info);
     return about_Info;
   }catch(error){

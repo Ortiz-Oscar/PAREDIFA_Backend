@@ -16,8 +16,7 @@ const saveStatusType = new GraphQLObjectType({
     description:"Check if everything was ok while saving an automata",
     fields:()=>({
         id : { type:GraphQLString, description:"ID of saved automata" },
-        repeatedID : { type:GraphQLBoolean,description:"Checks if " },
-        status:{ type:GraphQLBoolean, description:"True if automata was saved, false otherwise" },
+        repeatedID : { type:GraphQLBoolean,description:"Checks if ID is repeated" },
     })
 
 });

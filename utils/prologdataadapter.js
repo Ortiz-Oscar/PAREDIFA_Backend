@@ -1,3 +1,15 @@
+/*
+ *
+ * Description:
+ * Data parsing from prolog to client and viceverse
+ * EIF400 -- Paradigmas de Programacion
+ * @since II Term - 2021
+ * @authors Team 01-10am
+ *  - Andres Alvarez Duran 117520958 
+ *  - Joaquin Barrientos Monge 117440348
+ *  - Oscar Ortiz Chavarria 208260347
+ *  - David Zarate Marin 116770797
+ */
 /**
  * 
  * @param {*} finiteAutomata response object from prolog server
@@ -48,7 +60,8 @@ function unifyMoves(edges){
 }
 /**
  * 
- * @param {*} transitions Client transitions
+ * @param {*} transitions client type transitions
+ * @param {*} states client type states
  * @returns a list of prolog transition strings
  */
 function parseTransitions(transitions, states){
@@ -60,6 +73,11 @@ function parseTransitions(transitions, states){
         return symbols.map(symbol => `s${ sourceIndex + 1 }/${symbol}==>s${ targetIndex + 1 }`);
     });
 }
+/**
+ * Handle parsing of prolog DFA into a layout DFA
+ * @param {*} finiteAutomata prolog automata type
+ * @returns a layout automata object
+ */
 function parsePrologDFA(finiteAutomata){
     //Parse states
     const processedNodes = parsePrologStates(finiteAutomata);

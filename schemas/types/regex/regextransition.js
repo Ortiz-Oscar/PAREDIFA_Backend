@@ -1,7 +1,7 @@
 const { GraphQLObjectType, GraphQLString, GraphQLInt } = require("graphql");
 /*
  * Description:
- * Custom transition graphQL type for querys and simplify work for layout algorithm in client
+ * Custom transition graphQL type to simplify work for layout algorithm in client
  * EIF400 -- Paradigmas de Programacion
  * @since II Term - 2021
  * @authors Team 01-10am
